@@ -221,11 +221,13 @@ utils.diagnostics_to_tbl = function(opts)
   local buffer_diags = opts.get_all and vim.lsp.diagnostic.get_all()
     or { [current_buf] = vim.lsp.diagnostic.get(current_buf, opts.client_id) }
   for bufnr, diags in pairs(buffer_diags) do
-    for _, diag in ipairs(diags) do
-      -- workspace diagnostics may include empty tables for unused bufnr
-      if not vim.tbl_isempty(diag) then
-        if filter_diag_severity(opts, diag.severity) then
-          table.insert(items, preprocess_diag(diag, bufnr))
+    if vim.api.nvim_buf_is_valid(bufnr) then
+      for _, diag in ipairs(diags) do
+        -- workspace diagnostics may include empty tables for unused bufnr
+        if not vim.tbl_isempty(diag) then
+          if filter_diag_severity(opts, diag.severity) then
+            table.insert(items, preprocess_diag(diag, bufnr))
+          end
         end
       end
     end
